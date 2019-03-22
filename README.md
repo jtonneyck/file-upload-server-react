@@ -1,4 +1,4 @@
-#Uploading Images to your own Server with React
+# Uploading Images to your own Server with React
 
 ## Introduction
 This is a tutorial about how to upload files to your server with React. You upload a file by uploading it to the server on the harddisk and storing a reference in the database. You don't upload the file itself to the database.
@@ -6,7 +6,7 @@ This is a tutorial about how to upload files to your server with React. You uplo
  On the front-end you need a form with a special input tag of type 'file', a React feature called ["refs"](https://reactjs.org/docs/refs-and-the-dom.html), the [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData) constructor and [axios](https://www.npmjs.com/package/axios) that encodes the content in the special multipart/form-data format. On the backend you need a special parser for multipart/form-data forms called [multer](https://www.npmjs.com/package/multer). 
 
 
-##Front end
+## Front-end
 
 ### Refs
 React doesn't like it when other things than React are in control of dom elements. That's why you don't use jQuery with React or try to manipulate the dom directly in other ways. Normally dom manipulation is done indirectly through state and props. You change the state which causes React to rerender the components with different html/jsx as a result. However, there are some situations wherein you do wan't to refer to the dom directly. In that case you use 'refs". We want to access the form directly, because you can not let `<input type="file" name"profile-pic" />` be controlled by the state in a smooth way. Here we go!
@@ -128,7 +128,7 @@ router.post("/users", upload.single('profile-picture'), (req, res)=> {
 
 `var upload = multer({ dest: 'public/images' })` configures in what directory multer should put the file. Multer will give the file a new name that looks like a hash. This is to prevent naming collision. Multiple users could upload a file called "profile.jpeg". After the upload, multer will attach .file to the req object. In req.file you'll find information about the uploaded file, like its complete path. The rest of the user creation what you're used to.
 
-## Back to the Front-end
+## Back to the Front-end (hihi)
 
 Let's say you want to create a list of users with their profile pictures. How would you go about now? Simple, in a React component you send out a request for all users. Now you loop of them and return an `<img>` with the source matching the profil-picture path. Here's an example:
 
