@@ -3,13 +3,13 @@
 ## Introduction
 This is a tutorial about how to upload files to your server with React. You upload a file by uploading it to the server on the harddisk and storing a reference in the database. You don't upload the file itself to the database.
 
- On the front-end you need a form with a special input tag of type 'file', a React feature called ["refs"](https://reactjs.org/docs/refs-and-the-dom.html), the [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData) constructor and [axios](https://www.npmjs.com/package/axios) that encodes the content in the special multipart/form-data format. On the backend you need a special parser for multipart/form-data forms called [multer](https://www.npmjs.com/package/multer). 
+ On the front-end you need a form with a special input tag of type 'file', a React feature called [refs](https://reactjs.org/docs/refs-and-the-dom.html), the [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData) constructor and [axios](https://www.npmjs.com/package/axios) that encodes the content in the multipart/form-data format. On the backend you need a parser for multipart/form-data forms called [Multer](https://www.npmjs.com/package/multer). 
 
 
 ## Front-end
 
 ### Refs
-React doesn't like it when other things than React are in control of dom elements. That's why you don't use jQuery with React or try to manipulate the dom directly in other ways. Normally dom manipulation is done indirectly through state and props. You change the state which causes React to rerender the components with different html/jsx as a result. However, there are some situations wherein you do wan't to refer to the dom directly. In that case you use 'refs". We want to access the form directly, because you can not let `<input type="file" name"profile-pic" />` be controlled by the state in a smooth way. Here we go!
+React doesn't like it when other things than React are in control of dom elements. That's why you don't use jQuery with React or try to manipulate the dom directly in other ways. Normally, dom manipulation is done indirectly through state and props. You change the state which causes React to rerender the components with different html/jsx. However, there are some situations wherein you do wan't to refer to the dom directly. In that case you use 'refs'. We want to access the form directly, because you can not let `<input type="file" name"profile-pic" />` be controlled by the state in a smooth way. Here we go!
 
 ```jsx
 // SignUp.js
@@ -46,9 +46,10 @@ export default class SignUp extends Component {
             <input onChange={this.change} type="password" name="password" value={this.state.password} placeholder="password"/>
             <input type="file" name="profile-picture" /> 
             {/* file is not a "controlled" component */}
-            {/* the name of the file input field has the be alligned with multer in the back-end:  upload.single('profile-picture') */}
+            {/* the name of the file input field has the be alligned with Multer in the back-end:  upload.single('profile-picture') */}
             <button type="submit">Submit</button>
         </form>
+        {/*the user will receive feedback in case of success and in case of an error*/}
         <p style={{color: "red"}}>{this.state.err? this.state.err:""}</p>
         <p style={{color: "green"}}>{this.state.success? this.state.success:""}</p>
       </div>
@@ -56,10 +57,12 @@ export default class SignUp extends Component {
   }
 }
 ```
-To establish a ref, you first make one with `React.createRef()` and assign it to a field in the class. Check the constructor in the code above. Second, you bind the ref to the html node you want to refer to. Check the opening tag of `<Form>
+To establish a ref, you first make one with `React.createRef()` and assign it to a field in the class. Check the constructor in the code above. Second, you bind the ref to the html node you want to refer to. Check the opening tag of `<Form>`
 
 ## FormData and Axios
-After we've established the ref, we can implement the submit handler. Instead of getting all form data from the state, we are getting it from the ref and pass it to `FormData`. FormData knows how to parse `<input type="file" />`. After we've collected all the formData, we can send it to our back-end with axios. Since this is form containing a file, we've to use another encoding type called 'multipart/form-data'. We've also to enable cors, because we're sending data from another location/origin than the backend (localhost:3000 vs localhost:3001). Note, that we're checking for errors and let the user know visually if the sign up went alright.
+After we've established the ref, we can implement the submit handler. Instead of getting all form data from the state, we're passing the ref to the form to `FormData`. FormData knows how to get all the values out, including the value of `<input type="file" />`. 
+
+After we've collected all the FormData, we can send it to our back-end with axios. Since this is a form containing a file, we've to use another encoding type called 'multipart/form-data'. We've also to enable cors, because we're sending data from another location/origin than the backend (localhost:3000 vs localhost:3001).
 
 ``` jsx
 // SignUp.js
@@ -71,7 +74,7 @@ handleSubmit = (e)=> {
     axios({
         method: "post",
         url: `${config.baseUrl}/users`,
-        config: { headers: {'Content-Type': 'multipart/form-data' }}, //New! This is a different encoding type, because we're uploading files
+        config: { headers: {'Content-Type': 'multipart/form-data' }}, //New! This is a different encoding/content-type type, because we're uploading files
         data: formData,
         withCredentials: true
     })
@@ -89,7 +92,7 @@ handleSubmit = (e)=> {
 ```
 
 ### Back-end
-If everything went alright, we're receiving the formdata on the 'users' route on the backend correctly. You should check this with a debugger. On the back-end we're going to use Multer to parse it. Multer is like Bodyparser, but Bodyparser can't handle file uploads. Multer can. We're assuming you've set up the API with express generator.
+If everything went alright, we're receiving the formdata on the 'users' route on the backend correctly. You should check this with a debugger. On the back-end we're going to use Multer to parse the data. Multer is like Bodyparser,but Bodyparser can't handle file uploads. Multer can. We're assuming you've set up the API with express generator.
 
 !Important the argument in `upload.single('profile-picture')` has to match the name field in `<input type="file" name="profile-picture" />`
 
@@ -102,8 +105,7 @@ var multer = require("multer")
 var bcrypt = require("bcrypt")
 var upload = multer({ dest: 'public/images' })
 
- /* the name of the file input field has the be alligned with multer on the front-end: 
-  <input type="file" name="profile-picture" /> 
+ /* the name of the file input field has the be alligned with multer on the front-end: <input type="file" name="profile-picture" /> 
  */
 router.post("/users", upload.single('profile-picture'), (req, res)=> {
     debugger
@@ -126,7 +128,7 @@ router.post("/users", upload.single('profile-picture'), (req, res)=> {
 
 ```
 
-`var upload = multer({ dest: 'public/images' })` configures in what directory multer should put the file. Multer will give the file a new name that looks like a hash. This is to prevent naming collision. Multiple users could upload a file called "profile.jpeg". After the upload, multer will attach .file to the req object. In req.file you'll find information about the uploaded file, like its complete path. The rest of the user creation what you're used to.
+`var upload = multer({ dest: 'public/images' })` configures in what directory multer should put the file. Multer will give the file a new name that looks like a hash. This is to prevent naming collision in case multiple users upload, for example, a file called "profile.jpeg". After the upload, multer will attach .file to the req object. In req.file you'll find information about the uploaded file, like its complete path. The rest of the user creation goes like usual.
 
 ## Back to the Front-end (hihi)
 
@@ -163,9 +165,9 @@ export default class ListUsers extends Component {
 }
 ```
 
-config.baseUrl is the url of the backend. In this case http://localhost:3000. Check out the [repo](https://github.com/Piepongwong/file-upload-server-react) of the working code. 
+config.baseUrl holds the url of the backend. In this case http://localhost:3000. Check out the [repo](https://github.com/Piepongwong/file-upload-server-react) for the working code. 
 
-## To run
+## To Run working Demo Code
 
-In the root directory execute npm run install-all followed by npm start.
+In the root directory execute `npm run install-all` followed by `npm start`.
 
