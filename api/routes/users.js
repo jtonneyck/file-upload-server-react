@@ -14,7 +14,7 @@ router.post("/users", upload.single('profile-picture'), (req, res)=> {
       if(err) res.status(500).json({message: err}) //500 is a server error status code and will trigger catch in axios
       else {
         let newUser = req.body
-        newUser.profilePicture = req.file.path
+        if(req.file) newUser.profilePicture = req.file.path
         newUser.password = hash
         User.create(newUser)
         .then((response)=> {
