@@ -44,9 +44,9 @@ export default class SignUp extends Component {
   render() {
 
     return (
-      <div className="section container">
+      <div className="section container column is-half">
         {/* binding the ref (new!) */}
-        <form className="box column is-half" ref={this.form} onSubmit={this.handleSubmit} >
+        <form className="" ref={this.form} onSubmit={this.handleSubmit} >
 
           <div className="field">
             <label className="label is-pulled-left">Username</label>
