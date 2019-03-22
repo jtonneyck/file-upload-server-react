@@ -1,0 +1,19 @@
+{
+  "name": "upload-file",
+  "version": "1.0.0",
+  "description": "Working code for the file upload with react tutorial",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && npm start",
+    "api": "cd api && npm start",
+    "client-install": "cd client && npm install",
+    "api-install": "cd api && npm install",
+    "start": "concurrently \"npm run api\" \"npm run client\"",
+    "install-all": "npm install && npm run client-install && npm run api-install"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^4.1.0"
+  }
+}
